@@ -7,6 +7,4 @@
  * in the user manual at https://docs.gradle.org/7.4.2/userguide/multi_project_builds.html
  */
 
-rootProject.name = 'test-docker-spring-boot'
-// app 디렉터리를 포함하여 그래들 프로젝트 생성
-include('app')
+rootProject.name = 'docker-build-practice'
