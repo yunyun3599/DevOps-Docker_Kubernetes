@@ -1,0 +1,48 @@
+def mainDir="Docker/jenkins_docker"
+def dockerRepository="yoonjae"
+def dockerImageName="jenkins"
+def deployHost="192.168.75.17"
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Pull Codes from Github') {
+            steps{
+                checkout scm
+            }
+        }
+        stage('Build Codes by Gradle') {
+            steps {
+                sh """
+                cd ${mainDir}
+                ./gradlew clean build
+                """
+            }
+        }
+        stage('Build Docker Image by Jib & Push image to Dockerhub') {
+            steps {
+            withCredentials([usernamePassword(credentialsId: 'dockerhub-key',
+                            usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                                script {
+                                    sh """
+                                        ./gradlew jib -Pdocker.repository=${dockerRepository}
+                                                      -Pdocker.repository.username=${USERNAME}
+                                                      -Pdocker.repository.password=${PASSWORD}
+                                                      -Pdocker.image.name=${dockerImageName}
+                                                      -Pdocker.image.tag=${currentBuild.number}
+                                    """
+                                }
+                            }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sshagent(credentials: ["deploy-key"]){
+                    sh "ssh -o StrictHostKeyChecking=no yoonjae@${deployHost} \
+                        docker run -d -p 80:8080 -t ${dockerRepository}/${dockerImageName}:${currentBuild.number}"
+                }
+            }
+        }
+    }
+}
