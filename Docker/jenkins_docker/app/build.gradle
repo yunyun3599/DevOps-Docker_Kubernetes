@@ -43,6 +43,14 @@ jib {
     from {
         image = 'adoptopenjdk/openjdk11:alpine-jre'
     }
+    to {
+        image = project.findProperty("docker.repository") + "/" + project.findProperty("docker.image.name")
+        tags = [project.findProperty("docker.image.tag")]
+        auth {
+            username = project.findProperty("docker.repository.username")
+            password = project.findProperty("docker.repository.password")
+        }
+    }
     container {
         mainClass = 'com.jenkins.StartApplication'
         jvmFlags = ['-Xms512m', '-Xmx512m', '-Xdebug', '-XshowSettings:vm', '-XX:+UnlockExperimentalVMOptions', '-XX:+UseContainerSupport']

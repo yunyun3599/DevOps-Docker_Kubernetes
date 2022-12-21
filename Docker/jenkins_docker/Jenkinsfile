@@ -14,10 +14,19 @@ pipeline {
         }
         stage('Build Codes by Gradle') {
             steps {
-                sh """
-                cd ${mainDir}
-                ./gradlew clean build
-                """
+            withCredentials([usernamePassword(credentialsId: 'dockerhub-key',
+                            usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                                script {
+                                    sh """
+                                    cd ${mainDir}
+                                    ./gradlew clean build -Pdocker.repository=${dockerRepository} \
+                                                          -Pdocker.repository.username=${USERNAME} \
+                                                          -Pdocker.repository.password=${PASSWORD} \
+                                                          -Pdocker.image.name=${dockerImageName} \
+                                                          -Pdocker.image.tag=${currentBuild.number}
+                                    """
+                                }
+                            }
             }
         }
         stage('Build Docker Image by Jib & Push image to Dockerhub') {
@@ -26,10 +35,11 @@ pipeline {
                             usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                                 script {
                                     sh """
-                                        ./gradlew jib -Pdocker.repository=${dockerRepository}
-                                                      -Pdocker.repository.username=${USERNAME}
-                                                      -Pdocker.repository.password=${PASSWORD}
-                                                      -Pdocker.image.name=${dockerImageName}
+                                        cd ${mainDir}
+                                        ./gradlew jib -Pdocker.repository=${dockerRepository} \
+                                                      -Pdocker.repository.username=${USERNAME} \
+                                                      -Pdocker.repository.password=${PASSWORD} \
+                                                      -Pdocker.image.name=${dockerImageName} \
                                                       -Pdocker.image.tag=${currentBuild.number}
                                     """
                                 }
