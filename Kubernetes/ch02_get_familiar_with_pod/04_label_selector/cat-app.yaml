@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cat-app
+  labels:
+    group: animal
+spec:
+  containers:
+  - name: cat-app
+    image: ubuntu:20.04
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+    ports:
+      - containerPort: 8080
