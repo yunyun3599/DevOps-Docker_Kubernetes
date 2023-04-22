@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dog-app-1
+  labels:
+    species: dog
+spec:
+  nodeSelector:
+    env: animal
+  containers:
+  - name: dog-app
+    image: ubuntu:20.04
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+    ports:
+      - containerPort: 8080
