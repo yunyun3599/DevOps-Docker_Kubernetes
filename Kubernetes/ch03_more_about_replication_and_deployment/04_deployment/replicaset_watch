@@ -1,0 +1,6 @@
+NAME                DESIRED   CURRENT   READY   AGE
+my-app-65cb545f45   2         0         0       0s
+my-app-65cb545f45   2         0         0       0s
+my-app-65cb545f45   2         2         0       0s
+my-app-65cb545f45   2         2         1       3s
+my-app-65cb545f45   2         2         2       3s
