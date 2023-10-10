@@ -1,0 +1,103 @@
+# order service
+apiVersion: v1
+kind: Service
+metadata:
+  name: order
+  namespace: snackbar     # snackbar라는 네임스페이스 안에 서비스를 생성
+  labels:
+    service: order
+    project: snackbar
+spec:
+  type: ClusterIP         # Service의 디폴트 타입이 ClusterIP이므로 따로 선언하지 않아도 ClusterIP로 생성됨
+  selector:               # 파드 집합 선택자
+    service: order
+    project: snackbar
+  ports:
+    - port: 80            # 노출할 서비스 포트
+      targetPort: 8080    # 연결할 컨테이너 포트
+
+---
+
+# payment service
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment
+  namespace: snackbar     # snackbar라는 네임스페이스 안에 서비스를 생성
+  labels:
+    service: payment
+    project: snackbar
+spec:
+  type: ClusterIP         # Service의 디폴트 타입이 ClusterIP이므로 따로 선언하지 않아도 ClusterIP로 생성됨
+  selector:               # 파드 집합 선택자
+    service: payment
+    project: snackbar
+  ports:
+    - port: 80            # 노출할 서비스 포트
+      targetPort: 8080    # 연결할 컨테이너 포트
+
+---
+
+# order deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order
+  namespace: snackbar
+  labels:
+    service: order
+    project: snackbar
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      service: order
+      project: snackbar
+  template:
+    metadata:
+      labels:
+        service: order
+        project: snackbar
+    spec:
+      containers:
+      - name: order
+        image: yoonjeong/order:1.0
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            memory: "64Mi"
+            cpu: "50m"
+
+---
+
+# payment deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment
+  namespace: snackbar
+  labels:
+    service: payment
+    project: snackbar
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      service: payment
+      project: snackbar
+  template:
+    metadata:
+      labels:
+        service: payment
+        project: snackbar
+    spec:
+      containers:
+      - name: payment
+        image: yoonjeong/payment:1.0
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            memory: "64Mi"
+            cpu: "50m"
